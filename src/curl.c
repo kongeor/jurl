@@ -642,7 +642,7 @@ static struct  {
   {"copy-post-fields@TODO", {CURLOPT_COPYPOSTFIELDS, JANET_POINTER}}, // TODO
   {"seek-data@TODO", {CURLOPT_SEEKDATA, JANET_POINTER}}, // TODO
   {"ssh-key-data@TODO", {CURLOPT_SSH_KEYDATA, JANET_POINTER}}, // TODO
-  {"mail-rcpt@TODO", {CURLOPT_MAIL_RCPT, JANET_POINTER}}, // TODO
+  {"mail-rcpt", {CURLOPT_MAIL_RCPT, JANET_POINTER}},
   {"interleave-data@TODO", {CURLOPT_INTERLEAVEDATA, JANET_POINTER}}, // TODO
   {"chunk-data@TODO", {CURLOPT_CHUNK_DATA, JANET_POINTER}}, // TODO
   {"fnmatch-data@TODO", {CURLOPT_FNMATCH_DATA, JANET_POINTER}}, // TODO
@@ -770,6 +770,18 @@ static void options_set(Curl* c, Janet* key, Janet* val) {
         }
 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+      }
+      else if(0 == strcmp(keyword, "mail-rcpt")) {
+        struct curl_slist* list;
+        if (janet_checktype(*val, JANET_TUPLE) != 0) {
+          list = fill_list_from_tuple(*val);
+        } else if (janet_checktype(*val, JANET_ARRAY) != 0) {
+          list = fill_list_from_array(*val);
+        } else {
+          janet_panic("header must be an array or a tuple");
+        }
+
+        curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, list);
       } else {
        janet_panic("not implemented yet");
       }
